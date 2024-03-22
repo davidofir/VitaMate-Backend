@@ -7,7 +7,7 @@ const googleAuthController = require('./routes/googleAuthController')
 const serverless = require('serverless-http');
 const summarize = require('./summarize');
 const passport = require('passport');
-const { addDrugs,getDrugs } = require('./service');
+const { changeDrugs,getDrugs } = require('./service');
 const clientUrl = process.env.CLIENT_URL;
 const corsOptions = {
     origin: clientUrl,
@@ -25,12 +25,13 @@ app.use(googleAuthController);
 app.get('/',(req,res)=>{
     res.send('<a href="/auth/google">Authenticate with Google</a>');
 })
-app.post('/users/drugs', isLoggedIn, async (req, res) => {
-    const userId = req.user._id;
-    const newDrugsList = req.body.drugs;
+app.post('/drugs', isLoggedIn, async (req, res) => {
+    const userId = req.session.passport.user._id;
+    const newDrugsList = req.body;
+    console.log(req.body);
 
     try {
-        const modifiedCount = await addDrugs(userId, newDrugsList);
+        const modifiedCount = await changeDrugs(userId, newDrugsList);
 
         if (modifiedCount === 0) {
             return res.status(404).send('User not found.');
@@ -44,6 +45,7 @@ app.post('/users/drugs', isLoggedIn, async (req, res) => {
 });
 
 function isLoggedIn(req,res,next){
+    console.log(req.session.passport);
     req.session.passport.user ? next() : res.sendStatus(401);
 }
 app.get('/protected',isLoggedIn,(req,res)=>{

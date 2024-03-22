@@ -27,10 +27,11 @@ async function createOrUpdate(profile) {
     }, {
         upsert: true
     });
-    return result.value;
+    console.log(result)
+    return result;
 }
 
-async function addDrugs(userId, newDrugs) {
+async function changeDrugs(userId, newDrugs) {
     await initDb(); 
     const result = await collection.updateOne({
         _id: userId
@@ -48,4 +49,4 @@ async function getDrugs(userId){
     
 }
 
-module.exports = { createOrUpdate, addDrugs };
+module.exports = { createOrUpdate, changeDrugs, getDrugs };
