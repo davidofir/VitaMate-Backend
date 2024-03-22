@@ -1,13 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 require('dotenv').config();
-
 const app = express();
 const cors = require('cors');
-require('./auth');
+const googleAuthController = require('./routes/googleAuthController')
 const serverless = require('serverless-http');
 const summarize = require('./summarize');
 const { MongoClient } = require('mongodb');
+const { addDrug } = require('./service');
 const url = process.env.MONGO_CONNECTION_STRING;
 const client = new MongoClient(url);
 
@@ -17,22 +17,29 @@ const session = require('express-session');
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(googleAuthController);
 app.get('/',(req,res)=>{
     res.send('<a href="/auth/google">Authenticate with Google</a>');
 })
-app.get('/auth/google',
-  passport.authenticate('google', { scope:
-      [ 'email', 'profile' ] }
-));
+app.post('/user/drugs', isLoggedIn, async (req, res) => {
 
-app.get( '/auth/google/callback',
-    passport.authenticate( 'google', {
-        successRedirect: '/protected',
-        failureRedirect: '/auth/google/failure'
-}));
-app.get('/auth/google/failure',(req,res)=>{
-    res.send('Something went wrong');
-})
+    const userId = req.user.id; 
+    const newDrugsList = req.body.drugs;
+
+    try {
+
+        const modifiedCount = await addDrug(userId, newDrugsList);
+
+        if (modifiedCount === 0) {
+            return res.status(404).send('User not found.');
+        }
+
+        res.send('Drugs list updated successfully.');
+    } catch (error) {
+        console.error('Failed to update drugs list:', error);
+        res.status(500).send('An error occurred while updating the drugs list.');
+    }
+});
 app.get('/logout',(req,res)=>{
     req.logout((err)=>{
         return err;

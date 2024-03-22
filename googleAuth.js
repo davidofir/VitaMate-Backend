@@ -1,4 +1,5 @@
 const passport = require('passport');
+const { createOrUpdate, addDrug } = require('./service');
 var GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 
 passport.use(new GoogleStrategy({
@@ -7,7 +8,8 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:4000/auth/google/callback",
     passReqToCallback   : true
   },
-  function(request, accessToken, refreshToken, profile, done) {
+  async function(request, accessToken, refreshToken, profile, done) {
+    createOrUpdate(profile);
     return done(null,profile);
   }
 ));
