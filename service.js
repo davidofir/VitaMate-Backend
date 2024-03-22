@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient, Collection } = require('mongodb');
 const url = process.env.MONGO_CONNECTION_STRING;
 const client = new MongoClient(url);
 let db, collection;
@@ -8,7 +8,10 @@ async function initDb() {
     db = client.db();
     collection = db.collection('user');
 }
-
+async function getUserById(userId) {
+    await initDb(); 
+    return await collection.findOne({_id: userId});
+}
 async function createOrUpdate(profile) {
     await initDb(); 
     const result = await collection.findOneAndUpdate({
@@ -27,7 +30,7 @@ async function createOrUpdate(profile) {
     return result.value;
 }
 
-async function addDrug(userId, newDrugs) {
+async function addDrugs(userId, newDrugs) {
     await initDb(); 
     const result = await collection.updateOne({
         _id: userId
@@ -36,5 +39,13 @@ async function addDrug(userId, newDrugs) {
     });
     return result.modifiedCount;
 }
+async function getDrugs(userId){
+    await initDb();
+    db.coll
+    const result = await collection.findOne({_id:userId});
+    if(result) return result.drugs 
+    else return [];
+    
+}
 
-module.exports = { createOrUpdate, addDrug };
+module.exports = { createOrUpdate, addDrugs };

@@ -1,5 +1,5 @@
 const passport = require('passport');
-const { createOrUpdate, addDrug } = require('./service');
+const { createOrUpdate, getUserById } = require('./service');
 var GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 
 passport.use(new GoogleStrategy({
@@ -9,15 +9,24 @@ passport.use(new GoogleStrategy({
     passReqToCallback   : true
   },
   async function(request, accessToken, refreshToken, profile, done) {
-    createOrUpdate(profile);
+    await createOrUpdate(profile);
     return done(null,profile);
   }
 ));
 
 passport.serializeUser((user,done)=>{
-    done(null,user);
+    done(null,{
+      _id:user.id,
+      given_name: user.given_name,
+      family_name: user.family_name
+    });
 })
 
-passport.deserializeUser((user,done)=>{
-    done(null,user);
+passport.deserializeUser(async(userData,done)=>{
+  try {
+    const user = await getUserById(userData._id);
+    done(null, user);
+} catch (error) {
+    done(error, null);
+}
 })
