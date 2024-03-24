@@ -7,7 +7,7 @@ const googleAuthController = require('./routes/googleAuthController')
 const serverless = require('serverless-http');
 const summarize = require('./summarize');
 const passport = require('passport');
-const { changeDrugs,getDrugs } = require('./service');
+const { changeDrugs,getDrugs, addDrug } = require('./service');
 const clientUrl = process.env.CLIENT_URL;
 const corsOptions = {
     origin: clientUrl,
@@ -28,7 +28,6 @@ app.get('/',(req,res)=>{
 app.post('/drugs', isLoggedIn, async (req, res) => {
     const userId = req.session.passport.user._id;
     const newDrugsList = req.body;
-    console.log(req.body);
 
     try {
         const modifiedCount = await changeDrugs(userId, newDrugsList);
@@ -45,12 +44,12 @@ app.post('/drugs', isLoggedIn, async (req, res) => {
 });
 
 function isLoggedIn(req,res,next){
-    console.log(req.session.passport);
+
     req.session.passport.user ? next() : res.sendStatus(401);
 }
 app.get('/protected',isLoggedIn,(req,res)=>{
     //res.send(`Hello, authenticated! ${req.session.passport.user.given_name}`)
-    res.redirect('http://localhost:3000');
+    res.redirect(process.env.CLIENT_URL);
 })
 app.get('/drugs',isLoggedIn,async(req,res)=>{
     try {
@@ -61,7 +60,16 @@ app.get('/drugs',isLoggedIn,async(req,res)=>{
         res.status(500).send('An error occurred while fetching the drugs list.');
     }
 })
+app.post('/drug',isLoggedIn,async(req,res)=>{
+    try{
+        const newDrug = req.body;
+        const drug = await addDrug(req.session.passport.user._id,newDrug);
 
+    }catch(error){
+        console.error('Failed to add drug',error);
+        res.status(500).send('An error occurred while adding the drug');
+    }
+})
 
 app.get('/users/auth/status', (req, res) => {
     if (req.session && req.session.passport && req.session.passport.user) {

@@ -8,12 +8,12 @@ async function initDb() {
     db = client.db();
     collection = db.collection('user');
 }
+initDb().catch(console.error);
 async function getUserById(userId) {
-    await initDb(); 
     return await collection.findOne({_id: userId});
 }
 async function createOrUpdate(profile) {
-    await initDb(); 
+
     const result = await collection.findOneAndUpdate({
         _id: profile.sub
     }, {
@@ -27,12 +27,10 @@ async function createOrUpdate(profile) {
     }, {
         upsert: true
     });
-    console.log(result)
     return result;
 }
 
 async function changeDrugs(userId, newDrugs) {
-    await initDb(); 
     const result = await collection.updateOne({
         _id: userId
     }, {
@@ -41,12 +39,17 @@ async function changeDrugs(userId, newDrugs) {
     return result.modifiedCount;
 }
 async function getDrugs(userId){
-    await initDb();
-    db.coll
-    const result = await collection.findOne({_id:userId});
-    if(result) return result.drugs 
+    const result = await collection.findOne({_id: userId});
+    if (result) return result.drugs;
     else return [];
-    
 }
-
-module.exports = { createOrUpdate, changeDrugs, getDrugs };
+async function addDrug(userId, drugName) {
+    const result = await collection.findOneAndUpdate(
+        { _id: userId },
+        { $push: { drugs: drugName } }, 
+        { returnDocument: 'after' } 
+    );
+    if (result.value) return result.value.drugs;
+    else return [];
+}
+module.exports = { createOrUpdate, changeDrugs, getDrugs, addDrug };
