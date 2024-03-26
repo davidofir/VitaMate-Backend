@@ -1,5 +1,5 @@
 const passport = require('passport');
-const { createOrUpdate, getUserById } = require('./service');
+const { createOrUpdate, getUserById } = require('./services/userService');
 var GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
 
 passport.use(new GoogleStrategy({

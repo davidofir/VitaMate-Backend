@@ -7,7 +7,8 @@ const googleAuthController = require('./routes/googleAuthController')
 const serverless = require('serverless-http');
 const summarize = require('./summarize');
 const passport = require('passport');
-const { changeDrugs,getDrugs, addDrug } = require('./service');
+const drugController = require('./routes/drugController');
+const { changeDrugs,getDrugs, addDrug } = require('./services/userService');
 const clientUrl = process.env.CLIENT_URL;
 const corsOptions = {
     origin: clientUrl,
@@ -22,6 +23,7 @@ const session = require('express-session');
 
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(googleAuthController);
+app.use(drugController);
 app.get('/',(req,res)=>{
     res.send('<a href="/auth/google">Authenticate with Google</a>');
 })

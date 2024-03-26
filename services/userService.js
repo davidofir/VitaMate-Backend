@@ -12,7 +12,7 @@ initDb().catch(console.error);
 async function getUserById(userId) {
     return await collection.findOne({_id: userId});
 }
-async function createOrUpdate(profile) {
+async function createUser(profile) {
 
     const result = await collection.findOneAndUpdate({
         _id: profile.sub
@@ -52,4 +52,4 @@ async function addDrug(userId, drugName) {
     if (result.value) return result.value.drugs;
     else return [];
 }
-module.exports = { createOrUpdate, changeDrugs, getDrugs, addDrug };
+module.exports = { createOrUpdate: createUser, changeDrugs, getDrugs, addDrug };
