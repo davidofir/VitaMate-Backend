@@ -40,7 +40,7 @@ router.post('/drug', async (req, res) => {
         dosage,
         askDoctor,
         questions
-    } = req.body;
+    } = req.body.data;
 
     
     if (!name) {

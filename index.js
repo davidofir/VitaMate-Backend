@@ -3,7 +3,8 @@ const bodyParser = require('body-parser');
 require('dotenv').config();
 const app = express();
 const cors = require('cors');
-const googleAuthController = require('./routes/googleAuthController')
+const googleAuthController = require('./routes/googleAuthController');
+const facebookAuthController = require('./routes/facebookAuthController')
 const serverless = require('serverless-http');
 const summarize = require('./summarize');
 const passport = require('passport');
@@ -23,6 +24,7 @@ const session = require('express-session');
 
 app.use(session({ secret: 'secret', resave: false, saveUninitialized: true }));
 app.use(googleAuthController);
+app.use(facebookAuthController);
 app.use(drugController);
 app.get('/',(req,res)=>{
     res.send('<a href="/auth/google">Authenticate with Google</a>');

@@ -15,11 +15,11 @@ async function getUserById(userId) {
 async function createUser(profile) {
 
     const result = await collection.findOneAndUpdate({
-        _id: profile.sub
+        _id: profile.sub ? profile.sub : profile.id
     }, {
         $set: {
-            given_name: profile.given_name,
-            family_name: profile.family_name
+            displayName: profile.displayName,
+            provider:profile.provider
         },
         $setOnInsert: {
             drugs: []

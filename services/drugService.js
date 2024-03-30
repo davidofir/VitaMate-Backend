@@ -13,7 +13,7 @@ initDb().catch(console.error);
 
 async function getDrugByName(drugName){
     return await collection.findOne({
-        _id: drugName
+        _id: drugName.toUpperCase()
     })
 }
 async function createDrug(name,purpose,warnings,doNotUse,usage,dosage,askDoctor,questions){
