@@ -6,7 +6,7 @@ var FacebookStrategy = require( 'passport-facebook' ).Strategy;
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_OAUTH_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_OAUTH_CLIENT_SECRET,
-    callbackURL: "http://localhost:4000/auth/facebook/callback",
+    callbackURL: `${process.env.SERVER_URL}/auth/facebook/callback`,
     enableProof: true
   },
   async function( accessToken, refreshToken, profile, done) {
