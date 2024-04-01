@@ -1,32 +1,29 @@
 const passport = require('passport');
-const { createOrUpdate, getUserById } = require('./services/userService');
-var GoogleStrategy = require( 'passport-google-oauth2' ).Strategy;
+const jwt = require('jsonwebtoken');
+const { createOrUpdate } = require('./services/userService');
+var GoogleStrategy = require('passport-google-oauth2').Strategy;
+
+require('./jwtAuth'); 
 
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_OAUTH_CLIENT_ID,
     clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
     callbackURL: `${process.env.SERVER_URL}/auth/google/callback`,
-    passReqToCallback   : true
+    passReqToCallback: true
   },
   async function(request, accessToken, refreshToken, profile, done) {
-    await createOrUpdate(profile);
-    return done(null,profile);
+    try {
+      const user = await createOrUpdate(profile);
+      
+      const token = jwt.sign({
+        id: user._id,
+        displayName: user.displayName,
+        email: user.email
+      }, process.env.JWT_SECRET, { expiresIn: '24h' });
+
+      return done(null, { user, token });
+    } catch (error) {
+      return done(error, null);
+    }
   }
 ));
-
-passport.serializeUser((user,done)=>{
-    done(null,{
-      _id:user.id,
-      displayName:user.displayName,
-      provider:'google'
-    });
-})
-
-passport.deserializeUser(async(userData,done)=>{
-  try {
-    const user = await getUserById(userData._id);
-    done(null, user);
-} catch (error) {
-    done(error, null);
-}
-})

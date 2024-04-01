@@ -52,4 +52,4 @@ async function addDrug(userId, drugName) {
     if (result.value) return result.value.drugs;
     else return [];
 }
-module.exports = { createOrUpdate: createUser, changeDrugs, getDrugs, addDrug };
+module.exports = { createOrUpdate: createUser, changeDrugs, getDrugs, addDrug, getUserById };
