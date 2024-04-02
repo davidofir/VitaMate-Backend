@@ -10,7 +10,7 @@ const summarize = require('./summarize');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const drugController = require('./routes/drugController');
-const { changeDrugs,getDrugs, addDrug } = require('./services/userService');
+const userService = require('./services/userService');
 const clientUrl = process.env.CLIENT_URL;
 const corsOptions = {
     origin: clientUrl,
@@ -32,7 +32,7 @@ app.post('/drugs', isLoggedIn, async (req, res) => {
     const newDrugsList = req.body;
 
     try {
-        const modifiedCount = await changeDrugs(userId, newDrugsList);
+        const modifiedCount = await userService.changeDrugs(userId, newDrugsList);
 
         if (modifiedCount === 0) {
             return res.status(404).send('User not found.');
@@ -65,7 +65,7 @@ app.get('/protected',isLoggedIn,(req,res)=>{
 })
 app.get('/drugs', isLoggedIn, async (req, res) => {
     try {
-        const drugs = await getDrugs(req.user._id);
+        const drugs = await userService.getDrugs(req.user._id);
         res.send(drugs);
     } catch (error) {
         console.error('Failed to retrieve drugs list:', error);
@@ -77,7 +77,7 @@ app.post('/drugs', isLoggedIn, async (req, res) => {
         const userId = req.user._id;
         const newDrugsList = req.body;
 
-        const modifiedCount = await changeDrugs(userId, newDrugsList);
+        const modifiedCount = await userService.changeDrugs(userId, newDrugsList);
 
         if (modifiedCount === 0) {
             return res.status(404).send('User not found.');

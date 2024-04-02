@@ -1,7 +1,7 @@
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-const { createOrUpdate } = require('./services/userService');
-var GoogleStrategy = require('passport-google-oauth2').Strategy;
+const userService = require('./services/userService'); 
+const GoogleStrategy = require('passport-google-oauth2').Strategy;
 
 require('./jwtAuth'); 
 
@@ -13,16 +13,22 @@ passport.use(new GoogleStrategy({
   },
   async function(request, accessToken, refreshToken, profile, done) {
     try {
-      const user = await createOrUpdate(profile);
+      const user = await userService.createUser(profile);
       
+      // Ensure the user object has all required fields for JWT
+      if (!user || !user._id) {
+        throw new Error('User creation or retrieval failed');
+      }
+
       const token = jwt.sign({
-        id: user._id,
+        id: user._id, // Make sure _id is a string, as used in the Database class
         displayName: user.displayName,
         email: user.email
       }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
       return done(null, { user, token });
     } catch (error) {
+      console.error('Authentication error:', error); // Improved error logging
       return done(error, null);
     }
   }

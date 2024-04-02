@@ -1,5 +1,5 @@
 const passport = require('passport');
-const { createOrUpdate } = require('./services/userService');
+const userService = require('./services/userService');
 const jwt = require('jsonwebtoken');
 var FacebookStrategy = require( 'passport-facebook' ).Strategy;
 
@@ -12,7 +12,7 @@ passport.use(new FacebookStrategy({
   },
   async function(request, accessToken, refreshToken, profile, done) {
   try {
-    const user = await createOrUpdate(profile);
+    const user = await userService.createUser(profile);
     
     const token = jwt.sign({
       id: user._id,
